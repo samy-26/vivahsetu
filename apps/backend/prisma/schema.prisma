@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -300,7 +300,7 @@ model Blog {
   id          Int      @id @default(autoincrement())
   title       String
   slug        String   @unique
-  content     String   @db.LongText
+  content     String   @db.Text
   excerpt     String?  @db.Text
   imageUrl    String?
   authorId    Int?
