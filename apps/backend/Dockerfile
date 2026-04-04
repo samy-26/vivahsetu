@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 RUN apk add --no-cache chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -6,10 +6,26 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
+COPY prisma ./prisma
+RUN npx prisma generate
 COPY . .
-RUN npm run prisma:generate
 RUN npm run build
+
+# ---- production image ----
+FROM node:20-alpine AS runner
+
+RUN apk add --no-cache chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV NODE_ENV=production
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY prisma ./prisma
+RUN npx prisma generate
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3001
 CMD ["node", "dist/main"]
