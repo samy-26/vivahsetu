@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: vivahsetu-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: AADHAAR_ENCRYPTION_KEY
+        generateValue: true
+      - key: OTP_EXPIRY_MINUTES
+        value: "10"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
