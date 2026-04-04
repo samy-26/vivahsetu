@@ -1,6 +1,6 @@
 FROM node:20-alpine AS builder
 
-RUN apk add --no-cache chromium
+RUN apk add --no-cache chromium openssl openssl-dev
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
@@ -15,7 +15,7 @@ RUN npm run build
 # ---- production image ----
 FROM node:20-alpine AS runner
 
-RUN apk add --no-cache chromium
+RUN apk add --no-cache chromium openssl openssl-dev
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV NODE_ENV=production
