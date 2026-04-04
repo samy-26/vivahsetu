@@ -1,0 +1,17 @@
+{
+  "name": "vivahsetu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VivahSetu - Brahmana Matrimonial Platform",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "build": "npm run build:frontend",
+    "dev:backend": "node_modules/.bin/nest start --watch --config apps/backend/nest-cli.json",
+    "dev:frontend": "node_modules/.bin/next dev apps/frontend --port 3000",
+    "build:backend": "node_modules/.bin/nest build --config apps/backend/nest-cli.json",
+    "build:frontend": "node_modules/.bin/next build apps/frontend",
+    "prisma:generate": "node_modules/.bin/prisma generate --schema=apps/backend/prisma/schema.prisma",
+    "prisma:migrate": "node_modules/.bin/prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
+    "prisma:studio": "node_modules/.bin/prisma studio --schema=apps/backend/prisma/schema.prisma"
+  }
+}

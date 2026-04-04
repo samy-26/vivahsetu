@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: vivahsetu-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: vivahsetu
+      MYSQL_USER: vivahsetu_user
+      MYSQL_PASSWORD: vivahsetu_pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - vivahsetu-network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: vivahsetu-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - vivahsetu-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Backend
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: vivahsetu-backend
+    environment:
+      DATABASE_URL: mysql://vivahsetu_user:vivahsetu_pass@mysql:3306/vivahsetu
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3001
+      NODE_ENV: production
+    ports:
+      - '3001:3001'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - vivahsetu-network
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: vivahsetu-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+      NEXT_PUBLIC_SOCKET_URL: http://localhost:3001
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - vivahsetu-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  vivahsetu-network:
+    driver: bridge

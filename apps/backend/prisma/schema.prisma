@@ -1,0 +1,356 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BRIDE
+  GROOM
+  ADMIN
+}
+
+enum InterestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PlanType {
+  BASIC
+  STANDARD
+  PLATINUM
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PdfType {
+  KUNDLI
+  MATCHMAKING
+  INVOICE
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  phone         String    @unique
+  password      String?
+  role          UserRole  @default(BRIDE)
+  isVerified    Boolean   @default(false)
+  isApproved    Boolean   @default(false)
+  aadhaarNumber String?
+  aadhaarUrl    String?
+  otpSecret     String?
+  otpExpiry     DateTime?
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile           Profile?
+  familyDetails     FamilyDetails?
+  kundliDetails     KundliDetails?
+  sentInterests     Interest[]        @relation("SentInterests")
+  receivedInterests Interest[]        @relation("ReceivedInterests")
+  sentMessages      Chat[]            @relation("SentMessages")
+  receivedMessages  Chat[]            @relation("ReceivedMessages")
+  subscriptions     Subscription[]
+  payments          Payment[]
+  pdfFiles          PdfFile[]
+  kundliHistory     KundliHistory[]
+  matchmakingHistory MatchmakingHistory[] @relation("UserMatchmaking")
+  partnerMatchmaking MatchmakingHistory[] @relation("PartnerMatchmaking")
+  emailLogs         EmailLog[]
+  notifications     Notification[]
+  contactViewsGiven ContactView[]     @relation("ViewerContact")
+
+  @@map("users")
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  name          String
+  age           Int
+  height        String?
+  weight        String?
+  complexion    String?
+  maritalStatus String   @default("Single")
+  education     String?
+  profession    String?
+  income        String?
+  gotra         String?
+  manglik       Boolean  @default(false)
+  bio           String?  @db.Text
+  city          String?
+  state         String?
+  country       String   @default("India")
+  nativePlace   String?
+  photos        String?  @db.Text
+  isApprovedByAdmin Boolean @default(false)
+  approvedAt    DateTime?
+  approvedBy    Int?
+  isActive      Boolean  @default(true)
+  profileViews  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactViews ContactView[]
+
+  @@map("profiles")
+}
+
+model FamilyDetails {
+  id               Int     @id @default(autoincrement())
+  userId           Int     @unique
+  fatherName       String?
+  fatherOccupation String?
+  motherName       String?
+  motherOccupation String?
+  siblings         String?
+  familyType       String?
+  familyBackground String? @db.Text
+  familyIncome     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("family_details")
+}
+
+model KundliDetails {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  birthDate   DateTime
+  birthTime   String?
+  birthPlace  String?
+  rashi       String?
+  nakshatra   String?
+  gotra       String?
+  charanPaad  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kundli_details")
+}
+
+model Interest {
+  id         Int            @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     InterestStatus @default(PENDING)
+  message    String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  sender   User @relation("SentInterests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedInterests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("interests")
+}
+
+model Chat {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  message    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("chats")
+}
+
+model Subscription {
+  id             Int                @id @default(autoincrement())
+  userId         Int
+  planType       PlanType
+  startDate      DateTime           @default(now())
+  endDate        DateTime
+  remainingViews Int                @default(0)
+  status         SubscriptionStatus @default(ACTIVE)
+  paymentId      Int?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment Payment? @relation(fields: [paymentId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                Int           @id @default(autoincrement())
+  userId            Int
+  amount            Float
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  status            PaymentStatus @default(PENDING)
+  purpose           String?
+  metadata          String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+  pdfFiles      PdfFile[]
+
+  @@map("payments")
+}
+
+model PdfFile {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      PdfType
+  fileUrl   String
+  fileKey   String
+  paymentId Int?
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment Payment? @relation(fields: [paymentId], references: [id])
+
+  kundliHistory      KundliHistory[]
+  matchmakingHistory MatchmakingHistory[]
+
+  @@map("pdf_files")
+}
+
+model KundliHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  pdfId     Int
+  createdAt DateTime @default(now())
+
+  user User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pdf  PdfFile @relation(fields: [pdfId], references: [id])
+
+  @@map("kundli_history")
+}
+
+model MatchmakingHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  partnerId Int
+  pdfId     Int?
+  score     Float?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user    User     @relation("UserMatchmaking", fields: [userId], references: [id], onDelete: Cascade)
+  partner User     @relation("PartnerMatchmaking", fields: [partnerId], references: [id], onDelete: Cascade)
+  pdf     PdfFile? @relation(fields: [pdfId], references: [id])
+
+  @@map("matchmaking_history")
+}
+
+model EmailLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  to        String
+  subject   String
+  template  String?
+  status    String   @default("pending")
+  error     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("email_logs")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String   @db.Text
+  type      String
+  isRead    Boolean  @default(false)
+  data      String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   @db.LongText
+  excerpt     String?  @db.Text
+  imageUrl    String?
+  authorId    Int?
+  isPublished Boolean  @default(false)
+  tags        String?
+  metaTitle   String?
+  metaDesc    String?  @db.Text
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blogs")
+}
+
+model Gallery {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  imageKey  String
+  category  String?
+  caption   String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("gallery")
+}
+
+model OtpLog {
+  id        Int      @id @default(autoincrement())
+  target    String
+  type      String
+  otp       String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("otp_logs")
+}
+
+model ContactView {
+  id        Int      @id @default(autoincrement())
+  viewerId  Int
+  profileId Int
+  email     String
+  phone     String
+  createdAt DateTime @default(now())
+
+  viewer  User    @relation("ViewerContact", fields: [viewerId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([viewerId, profileId])
+  @@map("contact_views")
+}
