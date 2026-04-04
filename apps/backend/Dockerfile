@@ -6,7 +6,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY prisma ./prisma
 RUN npx prisma generate
 COPY . .
@@ -22,7 +22,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 COPY prisma ./prisma
 RUN npx prisma generate
 COPY --from=builder /app/dist ./dist
