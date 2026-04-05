@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST https://api.vercel.com/v2/deployments/dpl_8CA4efCt7GY3zRtBTsZk884CiDfh/aliases -H 'Authorization: Bearer vca_2X8gGN0vPG0Qjz0EBNZpg38bi07flmUtKTMIer31Jvt1nidLph2tsnLQ' -H 'Content-Type: application/json' -d '{\"alias\": \"vivahsetu-app.vercel.app\"}')",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\(0,'utf8'\\); const j=JSON.parse\\(d\\); console.log\\(j.alias||j.error\\)\")",
+      "Bash(curl -s -I \"https://vivahsetu-app.vercel.app\")",
+      "Bash(curl -s -X POST https://api.vercel.com/v2/deployments/dpl_8CA4efCt7GY3zRtBTsZk884CiDfh/aliases -H 'Authorization: Bearer vca_2X8gGN0vPG0Qjz0EBNZpg38bi07flmUtKTMIer31Jvt1nidLph2tsnLQ' -H 'Content-Type: application/json' -d '{\"alias\": \"vivahsetu.vercel.app\"}')",
+      "Bash(curl -s -X POST https://api.vercel.com/v2/deployments/dpl_8CA4efCt7GY3zRtBTsZk884CiDfh/aliases -H 'Authorization: Bearer vca_2X8gGN0vPG0Qjz0EBNZpg38bi07flmUtKTMIer31Jvt1nidLph2tsnLQ' -H 'Content-Type: application/json' -d '{\"alias\": \"__TRACKED_VAR__\"}')",
+      "Bash(curl -s -I \"https://vivahsetu-matrimonial.vercel.app\")",
+      "Bash(curl -s https://api.vercel.com/v9/projects/prj_ed2FBflR5q730NNA9OH4Wm6a43FV -H 'Authorization: Bearer vca_2X8gGN0vPG0Qjz0EBNZpg38bi07flmUtKTMIer31Jvt1nidLph2tsnLQ')",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\(0,'utf8'\\); const j=JSON.parse\\(d\\); console.log\\('name:', j.name, '\\\\nssoProtection:', JSON.stringify\\(j.ssoProtection\\), '\\\\npasswordProtection:', JSON.stringify\\(j.passwordProtection\\)\\)\")",
+      "Bash(curl -s -X DELETE https://api.vercel.com/v9/projects/prj_ed2FBflR5q730NNA9OH4Wm6a43FV -H 'Authorization: Bearer vca_2X8gGN0vPG0Qjz0EBNZpg38bi07flmUtKTMIer31Jvt1nidLph2tsnLQ')",
+      "Bash(curl -s -I \"https://vivahsetu-d7pj4q9gr-bhattsamy2602-4026s-projects.vercel.app\")"
+    ]
+  }
+}
