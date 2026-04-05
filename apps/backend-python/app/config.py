@@ -3,8 +3,8 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = ""
-    FRONTEND_URL: str = "http://localhost:3000"
+    DATABASE_URL: str = "postgresql://postgres:64gRaU3421IYH68m@db.edpomdapdemuhsxfndqg.supabase.co:5432/postgres?sslmode=require"
+    FRONTEND_URL: str = "https://vivahsetu.vercel.app"
     SECRET_KEY: str = "change-me-in-production"
     REFRESH_SECRET_KEY: str = "change-me-refresh"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7   # 7 days
