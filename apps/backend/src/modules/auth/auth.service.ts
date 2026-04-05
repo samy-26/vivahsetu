@@ -80,8 +80,6 @@ export class AuthService {
     if (dto.type === 'email') {
       await this.emailService.sendOtpEmail(dto.target, otp);
     }
-    // SMS OTP can be added via Twilio
-
     this.logger.log(`OTP sent to ${dto.target}`);
     return { message: 'OTP sent successfully', expiresIn: 600 };
   }

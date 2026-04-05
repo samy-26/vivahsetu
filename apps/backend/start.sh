@@ -1,3 +1,3 @@
 #!/bin/sh
-npx prisma migrate deploy
+npx prisma db push --accept-data-loss
 node dist/main
