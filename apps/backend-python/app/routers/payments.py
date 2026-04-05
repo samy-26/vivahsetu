@@ -48,7 +48,7 @@ def create_order(dto: CreateOrderDto, db: Session = Depends(get_db), current_use
         userId=current_user.id, amount=dto.amount,
         razorpayOrderId=rp_order["id"], status="PENDING",
         purpose=dto.purpose,
-        metadata=json.dumps(dto.metadata) if dto.metadata else None,
+        meta=json.dumps(dto.metadata) if dto.metadata else None,
     )
     db.add(payment)
     db.commit()
@@ -80,7 +80,7 @@ def verify_payment(dto: VerifyDto, db: Session = Depends(get_db), current_user: 
     db.commit()
 
     if payment.purpose == "subscription":
-        meta = json.loads(payment.metadata) if payment.metadata else {}
+        meta = json.loads(payment.meta) if payment.meta else {}
         create_subscription(db, current_user.id, meta.get("planType", "BASIC"), payment.id)
 
     user = db.query(User).filter(User.id == current_user.id).first()

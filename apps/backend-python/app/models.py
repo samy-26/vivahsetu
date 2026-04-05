@@ -208,7 +208,7 @@ class Payment(Base):
     razorpaySignature = Column(String, nullable=True)
     status = Column(Enum(PaymentStatus, name="paymentstatus"), default=PaymentStatus.PENDING)
     purpose = Column(String, nullable=True)
-    metadata = Column(Text, nullable=True)
+    meta = Column("metadata", Text, nullable=True)
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -226,7 +226,7 @@ class PdfFile(Base):
     fileUrl = Column(String, nullable=False)
     fileKey = Column(String, nullable=False)
     paymentId = Column(Integer, ForeignKey("payments.id"), nullable=True)
-    metadata = Column(Text, nullable=True)
+    meta = Column("metadata", Text, nullable=True)
     createdAt = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="pdfFiles")
